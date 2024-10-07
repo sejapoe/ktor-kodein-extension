@@ -1,11 +1,10 @@
 package ru.sejapoe
 
 import io.ktor.server.application.*
-import org.kodein.di.DI
-import org.kodein.di.DIAware
-import org.kodein.di.bind
-import org.kodein.di.singleton
+import io.ktor.server.routing.*
+import org.kodein.di.*
 import org.kodein.type.erased
+import org.kodein.type.jvmType
 import kotlin.reflect.KClass
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createType
@@ -13,6 +12,20 @@ import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.typeOf
+
+context(Route)
+fun DI.registerRoutes() {
+    for (bind in container.tree.bindings) {
+        val bindClass = bind.key.type.jvmType as? Class<*>?
+        if (bindClass != null && KodeinController::class.java.isAssignableFrom(bindClass)) {
+            val instance by Instance(bind.key.type)
+            val kodeinController = instance as KodeinController
+            route(kodeinController.basePath) {
+                kodeinController.apply { registerRoutes() }
+            }
+        }
+    }
+}
 
 fun Application.stringProperty(property: String) = environment.config.propertyOrNull(property)?.getString()
 
