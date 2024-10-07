@@ -3,8 +3,8 @@ plugins {
 }
 
 allprojects {
-    group = "ru.sejapoe"
-    version = "0.0.1"
+    group = "com.github.sejapoe"
+    version = "1.0.1"
 }
 
 subprojects {
